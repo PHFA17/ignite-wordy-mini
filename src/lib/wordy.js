@@ -48,9 +48,10 @@ export function localDateKey(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
 }
 
-export function getPuzzle(courseId = 'english', date = new Date()) {
+export function getPuzzle(courseId = 'english', date = new Date(), remoteCatalog = null) {
   const course = DAILY_PUZZLES[courseId] ? courseId : 'english';
-  const puzzles = DAILY_PUZZLES[course];
+  const provided = remoteCatalog?.[course];
+  const puzzles = Array.isArray(provided) && provided.length ? provided : DAILY_PUZZLES[course];
   const offset = course === 'spanish' ? 2 : course === 'french' ? 4 : 0;
   const index = Math.abs(Math.floor(new Date(date.getFullYear(),date.getMonth(),date.getDate()).getTime()/86400000) + offset) % puzzles.length;
   const source = puzzles[index];
