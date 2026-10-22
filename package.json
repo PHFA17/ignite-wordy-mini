@@ -7,7 +7,7 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
-    "test": "node --test src/lib/wordy.test.js"
+    "test": "node --test src/lib/wordy.test.js src/lib/wordySeed.test.js"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.1.0",
