@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid}/wordyProgress/{dailyKey} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['foundWords', 'mainFound', 'updatedAt', 'dateKey', 'courseId'])
+        && request.resource.data.foundWords is list
+        && request.resource.data.foundWords.size() <= 500
+        && request.resource.data.mainFound is bool
+        && request.resource.data.dateKey is string
+        && request.resource.data.courseId in ['english', 'spanish', 'french']
+        && request.resource.data.updatedAt is timestamp;
+      allow delete: if false;
+    }
+  }
+}
