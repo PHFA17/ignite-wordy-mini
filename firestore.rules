@@ -1,18 +1,43 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function owner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // Históricos privados. A senha persistida evita misturar respostas quando
+    // o catálogo da conta é importado ou substituído.
     match /users/{uid}/wordyProgress/{dailyKey} {
-      allow read: if request.auth != null && request.auth.uid == uid;
-      allow create, update: if request.auth != null
-        && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['foundWords', 'mainFound', 'updatedAt', 'dateKey', 'courseId'])
-        && request.resource.data.keys().hasAll(['foundWords', 'mainFound', 'updatedAt', 'dateKey', 'courseId'])
+      allow read: if owner(uid);
+      allow create, update: if owner(uid)
+        && request.resource.data.keys().hasOnly(['foundWords', 'mainFound', 'updatedAt', 'dateKey', 'courseId', 'puzzleWord'])
+        && request.resource.data.keys().hasAll(['foundWords', 'mainFound', 'updatedAt', 'dateKey', 'courseId', 'puzzleWord'])
         && request.resource.data.foundWords is list
-        && request.resource.data.foundWords.size() <= 500
+        && request.resource.data.foundWords.size() <= 250
         && request.resource.data.mainFound is bool
         && request.resource.data.dateKey is string
+        && request.resource.data.puzzleWord is string
+        && request.resource.data.puzzleWord.size() == 5
         && request.resource.data.courseId in ['english', 'spanish', 'french']
         && dailyKey == request.resource.data.courseId + '_' + request.resource.data.dateKey
+        && request.resource.data.updatedAt is timestamp;
+      allow delete: if false;
+    }
+
+    // 15 senhas + respectivas palavras válidas por idioma.
+    // Cada conta edita apenas seu próprio catálogo, nunca o de outros usuários.
+    match /users/{uid}/wordyCatalog/{courseId} {
+      allow read: if owner(uid);
+      allow create, update: if owner(uid)
+        && courseId in ['english', 'spanish', 'french']
+        && request.resource.data.keys().hasOnly(['courseId', 'puzzles', 'updatedAt'])
+        && request.resource.data.keys().hasAll(['courseId', 'puzzles', 'updatedAt'])
+        && request.resource.data.courseId == courseId
+        && request.resource.data.puzzles is list
+        && request.resource.data.puzzles.size() == 15
+        && request.resource.data.puzzles[0] is map
+        && request.resource.data.puzzles[0].mainWord is string
+        && request.resource.data.puzzles[0].validWords is list
         && request.resource.data.updatedAt is timestamp;
       allow delete: if false;
     }
