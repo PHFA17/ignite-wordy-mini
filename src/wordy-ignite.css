@@ -1,0 +1,844 @@
+/* Wordy original: classes e geometria do Figma, cópia de estilo somente no mini projeto. */
+
+.wordy-screen {
+  --wordy-bg: var(--ignite-backgrounds-primary);
+  --wordy-title: var(--ignite-labels-primary);
+  --wordy-subtitle: var(--ignite-labels-secondary);
+  --wordy-line: var(--ignite-separators-opaque);
+  --wordy-energy-line: var(--ignite-separators-non-opaque);
+  /* Duas peças diferentes, e elas estavam usando a mesma cor.
+     No arquivo (2035:1584 e 2035:1574): a caixa da senha é
+     Separators/Non-opaque com 2px de Separators/Opaque embaixo; a tecla é
+     Fills/Controls/Smooth Colored Button com 3px de
+     Separators/Controls/Smooth Colored Button. E as letras não têm a mesma
+     cor: a digitada na caixa é Labels/Primary, a da tecla é Labels/Tertiary —
+     escura sobre o creme. */
+  --wordy-slot-bg: var(--ignite-separators-non-opaque);
+  --wordy-slot-border: var(--ignite-separators-opaque);
+  --wordy-slot-text: var(--ignite-labels-primary);
+  --wordy-letter-bg: var(--ignite-fills-controls-smooth-colored-button);
+  --wordy-letter-border: var(--ignite-separators-controls-smooth-colored-button);
+  --wordy-letter-text: var(--ignite-labels-tertiary);
+  /* Cores dos estados do jogo. Ficam aqui, junto das outras do Wordy, e são
+     tingidas sobre a superfície do tema em figma-interaction-fixes-v3.css —
+     por isso são matizes puros, não as cores finais. */
+  --wordy-state-error: #e5484d;
+  /* Âmbar fixo como os outros dois. Cheguei a usar
+     --ignite-accents-tasks-completed-gradient-end aqui, mas esse token é ciano
+     no dark e branco no AMOLED — o "amarelo" saía azul. */
+  --wordy-state-repeated: #f5a524;
+  --wordy-state-success: #30a46c;
+  --wordy-energy-gradient: linear-gradient(0deg, var(--ignite-accents-energy-gradient-start), var(--ignite-accents-energy-gradient-end));
+  position: absolute;
+  inset: 0;
+  width: 393px;
+  height: var(--viewport-canvas-height);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  background: var(--wordy-bg);
+  color: var(--wordy-title);
+  font-family: Poppins, Inter, system-ui, sans-serif;
+  pointer-events: auto;
+  outline: none;
+}
+.wordy-screen::-webkit-scrollbar { width: 0; height: 0; }
+.wordy-screen::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 780px;
+  width: 1px;
+  height: 32px;
+  pointer-events: none;
+}
+
+.wordy-head {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 393px;
+  height: 120px;
+  z-index: 30;
+  background: var(--wordy-bg);
+  border-bottom: 1px solid var(--wordy-line);
+}
+
+.wordy-head__copy {
+  position: absolute;
+  left: 65px;
+  top: 38px;
+  width: 250px;
+  height: 54px;
+}
+
+.wordy-head h1,
+.wordy-head p {
+  position: absolute;
+  left: 0;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.wordy-head h1 {
+  top: 0;
+  color: var(--wordy-title);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 30px;
+}
+
+.wordy-head p {
+  top: 30px;
+  color: var(--wordy-subtitle);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+}
+
+.wordy-head__back {
+  position: absolute;
+  left: 32px;
+  top: 49px;
+  width: 17px;
+  height: 32px;
+  color: var(--wordy-title);
+  cursor: pointer;
+}
+
+.wordy-head__back span {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  width: 21px;
+  height: 21px;
+  border-left: 3px solid currentColor;
+  border-bottom: 3px solid currentColor;
+  border-radius: 1px;
+  transform: rotate(45deg);
+  transform-origin: center;
+}
+
+.wordy-head__energy {
+  position: absolute;
+  left: 316px;
+  top: 37px;
+  width: 45px;
+  height: 64px;
+  cursor: pointer;
+}
+
+.wordy-head__bolt {
+  position: absolute;
+  left: 11px;
+  top: 0;
+  width: 24px;
+  height: 32px;
+}
+
+.wordy-head__counter {
+  position: absolute;
+  left: 0;
+  top: 40px;
+  width: 45px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--wordy-energy-line);
+  border-radius: 29px;
+  background-color: var(--wordy-bg);
+  background-image: var(--wordy-energy-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-family: "Shantell Sans", cursive;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  text-align: center;
+}
+
+.wordy-password {
+  position: absolute;
+  left: 31px;
+  top: 152px;
+  width: 330px;
+  height: 119px;
+}
+
+.wordy-password h2,
+.wordy-history h2 {
+  margin: 0;
+  color: var(--wordy-title);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 33px;
+}
+
+.wordy-password__slots {
+  position: absolute;
+  left: 0;
+  top: 49px;
+  width: 330px;
+  height: 70px;
+  display: grid;
+  grid-template-columns: repeat(5, 50px);
+  column-gap: 20px;
+}
+
+.wordy-password__slot {
+  width: 50px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 6px;
+  background: var(--wordy-slot-bg);
+  box-shadow: 0 2px 0 var(--wordy-slot-border);
+  color: var(--wordy-slot-text);
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 42px;
+}
+
+.wordy-board {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 393px;
+  height: 852px;
+  pointer-events: none;
+}
+
+.wordy-letter {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 180px;
+  background: var(--wordy-letter-bg);
+  box-shadow: 0 3px 0 var(--wordy-letter-border);
+  color: var(--wordy-letter-text);
+  font-family: Poppins, Inter, system-ui, sans-serif;
+  font-size: 32px;
+  line-height: 48px;
+  font-weight: 600;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 120ms ease, border-bottom-width 120ms ease;
+}
+
+.wordy-letter:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--wordy-letter-border);
+}
+
+.wordy-letter[data-letter-position="top"] { left: 156px; top: 335px; }
+.wordy-letter[data-letter-position="right"] { left: 252px; top: 431px; }
+.wordy-letter[data-letter-position="center"] { left: 156px; top: 431px; }
+.wordy-letter[data-letter-position="bottom"] { left: 156px; top: 527px; }
+.wordy-letter[data-letter-position="left"] { left: 60px; top: 431px; }
+
+.wordy-history {
+  position: absolute;
+  left: 31px;
+  top: 671px;
+  width: 330px;
+  padding-bottom: 56px;
+}
+
+.wordy-history p {
+  margin: 8px 0 0;
+  width: 330px;
+  color: var(--wordy-title);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.wordy-history__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* O histórico não está no arquivo; estes chips são nossos. Eles usavam o creme
+   da tecla com texto Labels/Primary — branco sobre creme. Passam a usar a
+   mesma superfície da caixa da senha, que é onde a palavra descoberta aparece. */
+.wordy-history__list span {
+  min-height: 32px;
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--wordy-slot-bg);
+  box-shadow: 0 2px 0 var(--wordy-slot-border);
+  color: var(--wordy-slot-text);
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+
+
+
+/* Correção final mínima: preserva as coordenadas originais do Wordy no frame 393x852. */
+.wordy-screen--figma {
+  min-height: 852px;
+  height: var(--viewport-canvas-height);
+  padding-bottom: 0 !important;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-behavior: auto;
+}
+
+.wordy-screen--figma .wordy-password {
+  left: 31px;
+  top: 152px;
+  width: 330px;
+  height: 119px;
+  z-index: 2;
+}
+
+.wordy-screen--figma .wordy-password h2 {
+  margin: 0;
+  color: var(--wordy-title);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 33px;
+}
+
+.wordy-screen--figma .wordy-password__slots {
+  position: absolute;
+  left: 0;
+  top: 49px;
+  width: 330px;
+  height: 70px;
+  display: grid;
+  grid-template-columns: repeat(5, 50px);
+  column-gap: 20px;
+  row-gap: 0;
+  margin: 0;
+}
+
+.wordy-screen--figma .wordy-password__slot {
+  width: 50px;
+  height: 70px;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  background: var(--wordy-slot-bg);
+  box-shadow: 0 2px 0 var(--wordy-slot-border);
+  /* A letra digitada na caixa é Labels/Primary. Aqui usava a cor da tecla, que
+     agora é escura para contrastar com o creme — dava letra escura sobre caixa
+     escura. */
+  color: var(--wordy-slot-text);
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 42px;
+  transition: background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+/* Casa preenchida: a mesma superfície da vazia, só que mais funda.
+   Ela usava a cor da tecla — creme — com a letra digitada em branco por cima:
+   ilegível. E o salto para o estado seguinte era brutal, porque saía de creme
+   para verde/âmbar escuro de uma vez. Escurecendo a própria superfície, digitar
+   e acertar passam a ser variações do mesmo fundo, e a diferença entre "HA" e
+   "HAT" é só o tom. */
+.wordy-screen--figma .wordy-password__slot.is-filled {
+  background: color-mix(in srgb, black 18%, var(--wordy-slot-bg));
+  box-shadow: 0 2px 0 var(--wordy-slot-border);
+}
+
+/* Estados do Wordy.
+
+   Eram cores fixas e claras — #fff0ee, #fff8e1, #eaf8ee, #dff6e6 — escritas
+   direto na regra. No tema escuro viravam blocos quase brancos, e o texto da
+   letra continuava sendo a cor de label do tema (branco), então o acerto ficava
+   branco no branco. Agora cada estado é um tingimento por cima da própria
+   superfície do tema: a cor diz o que aconteceu e o contraste do texto continua
+   sendo o do tema, nos três modos. */
+
+.wordy-screen--figma .wordy-password__slots.is-invalid {
+  animation: wordy-invalid-shake 430ms cubic-bezier(.36, .07, .19, .97) both;
+}
+
+.wordy-screen--figma .wordy-password__slots.is-invalid .is-result-slot {
+  background: color-mix(in srgb, var(--wordy-state-error) 20%, var(--wordy-slot-bg));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--wordy-state-error) 60%, transparent),
+    0 2px 0 color-mix(in srgb, var(--wordy-state-error) 60%, transparent);
+}
+
+/* Palavra já descoberta: amarelo, não vermelho. O jogador acertou de novo —
+   marcar como erro ensina a coisa errada. Sem o shake do inválido, e sem
+   apagar as letras: é digitando mais que se sai de SHE para SHEET. */
+.wordy-screen--figma .wordy-password__slots.is-repeated .is-result-slot {
+  background: color-mix(in srgb, var(--wordy-state-repeated) 22%, var(--wordy-slot-bg));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--wordy-state-repeated) 65%, transparent),
+    0 2px 0 color-mix(in srgb, var(--wordy-state-repeated) 65%, transparent);
+}
+
+.wordy-screen--figma .wordy-password__slots.is-success .is-result-slot,
+.wordy-screen--figma .wordy-password__slots.is-main-success .is-result-slot {
+  background: color-mix(in srgb, var(--wordy-state-success) 20%, var(--wordy-slot-bg));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--wordy-state-success) 60%, transparent),
+    0 2px 0 color-mix(in srgb, var(--wordy-state-success) 60%, transparent);
+  animation: wordy-success-hop 520ms cubic-bezier(.2, .75, .2, 1) both;
+  animation-delay: calc(var(--wordy-slot-index) * 90ms);
+}
+
+/* A principal do dia é a conquista maior: mesmo verde, mais presente. */
+.wordy-screen--figma .wordy-password__slots.is-main-success .is-result-slot {
+  background: color-mix(in srgb, var(--wordy-state-success) 34%, var(--wordy-slot-bg));
+  box-shadow:
+    0 0 0 1px var(--wordy-state-success),
+    0 2px 0 var(--wordy-state-success);
+}
+
+/* Acerto e repetição no modo claro.
+
+   Os estados acima tingem o matiz sobre --wordy-slot-bg, que no claro é um
+   cinza. Verde e âmbar saíam escuros e turvos, e a letra continuava com a cor
+   de texto comum — o acerto não se lia como acerto.
+
+   Aqui o par vem pronto, o mesmo do chip da palavra principal logo abaixo
+   (#e6f8eb sobre #177b36): fundo claro, letra na cor do estado, borda e sombra
+   da mesma família. Contraste medido: 4,84:1 no acerto, 4,71:1 na principal e
+   5,77:1 na repetida — todos acima de 4,5:1.
+
+   Só no claro. Nos escuros a mistura sobre a superfície funciona e continua
+   valendo, por isso o escopo é [data-colors-mode="light"] e não :root. */
+[data-colors-mode="light"] .wordy-screen--figma .wordy-password__slots.is-success .is-result-slot,
+[data-colors-mode="light"] .wordy-screen--figma .wordy-password__slots.is-main-success .is-result-slot {
+  background: #e6f8eb;
+  color: #177b36;
+  box-shadow:
+    0 0 0 1px #47c86b,
+    0 2px 0 #a7dbb6;
+}
+
+[data-colors-mode="light"] .wordy-screen--figma .wordy-password__slots.is-main-success .is-result-slot {
+  background: #dff6e8;
+  box-shadow:
+    0 0 0 1px #177b36,
+    0 2px 0 #177b36;
+}
+
+/* O âmbar tinha o mesmo defeito do verde: escuro demais para ler como aviso
+   leve. Palavra já descoberta não é erro — a cor precisa ser suave. */
+[data-colors-mode="light"] .wordy-screen--figma .wordy-password__slots.is-repeated .is-result-slot {
+  background: #fdf4dd;
+  color: #8a5300;
+  box-shadow:
+    0 0 0 1px #f0b429,
+    0 2px 0 #e3c27f;
+}
+
+/* As letras já possuem as coordenadas absolutas do Figma. O override anterior
+   adicionava outros 335px e desmontava toda a tela. */
+.wordy-screen--figma .wordy-board {
+  left: 0;
+  top: 0 !important;
+  width: 393px;
+  height: 852px;
+  z-index: 1;
+}
+
+.wordy-screen--figma .wordy-delete-key {
+  position: absolute;
+  left: 264px;
+  top: 549px;
+  z-index: 4;
+  width: 57px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 5px;
+  background: #1e3033;
+  color: #fff;
+  clip-path: polygon(18% 0, 100% 0, 100% 100%, 18% 100%, 0 50%);
+  font: 600 18px/27px Poppins, Inter, system-ui, sans-serif;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.wordy-screen--figma .wordy-history {
+  left: 31px;
+  top: 671px !important;
+  z-index: 2;
+  width: 330px;
+  min-height: 0 !important;
+  padding-bottom: 56px;
+}
+
+.wordy-screen--figma .wordy-history h2 {
+  margin: 0;
+  color: var(--wordy-title);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 33px;
+}
+
+.wordy-screen--figma .wordy-history > p {
+  margin: 8px 0 0;
+  width: 330px;
+  color: var(--wordy-title);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.wordy-screen--figma .wordy-history__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px !important;
+}
+
+/* Chip do histórico.
+   Era #fef8f3 fixo com a cor do título por cima — branco sobre branco no tema
+   escuro, que é a palavra que sumia na lista. Passa a usar a mesma superfície
+   das casas da senha, que é onde a palavra foi descoberta. */
+.wordy-screen--figma .wordy-history__item {
+  min-height: 32px;
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--wordy-slot-bg);
+  box-shadow: 0 2px 0 var(--wordy-slot-border);
+  color: var(--wordy-slot-text);
+  font: 500 14px/22px Inter, system-ui, sans-serif;
+}
+
+/* A principal do dia continua com o verde claro de sempre.
+   Cheguei a tingi-la sobre a superfície escura, como os estados das casas, e
+   ficou pior — é este par que o usuário quer. Ele pode ser fixo porque é uma
+   medalha: fundo e texto vêm juntos e não dependem do tema, então lê igual no
+   claro, no escuro e no AMOLED. Diferente do chip comum, que tinha fundo fixo
+   e texto do tema e por isso sumia. */
+.wordy-screen--figma .wordy-history__item.is-main-word {
+  order: -1;
+  border: 1px solid #47c86b;
+  background: #e6f8eb;
+  color: #177b36;
+  box-shadow: 0 2px 0 #a7dbb6;
+}
+
+
+
+/*
+ * Revisão v8 — scroll previsível no Wordy e gerenciamento de temas.
+ *
+ * Mantém a escala global do app intacta. As áreas roláveis começam abaixo do
+ * header de 120px e usam a altura real calculada pelo visualViewport, incluindo
+ * a área segura da PWA e o respiro das barras do navegador móvel.
+ */
+
+/* -------------------------------------------------------------------------- */
+/* Wordy                                                                      */
+/* -------------------------------------------------------------------------- */
+
+.wordy-screen.wordy-screen--figma.wordy-screen--scroll-v8 {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 393px !important;
+  height: var(--viewport-canvas-height, 852px) !important;
+  min-height: 0 !important;
+  max-height: var(--viewport-canvas-height, 852px) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+
+.wordy-screen--scroll-v8 .wordy-content-scroll {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 120px;
+  bottom: 0;
+  z-index: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
+  scroll-behavior: auto;
+  scroll-padding-top: 20px;
+  scroll-padding-bottom: calc(28px + var(--safe-bottom, 0px) + var(--browser-bottom-guard, 0px));
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.wordy-screen--scroll-v8 .wordy-content-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.wordy-screen--scroll-v8 .wordy-content-scroll__canvas {
+  position: relative;
+  width: 393px;
+  height: 860px;
+  min-height: 860px;
+  padding-bottom: calc(28px + var(--safe-bottom, 0px) + var(--browser-bottom-guard, 0px));
+  overflow: visible;
+}
+
+/* As coordenadas continuam correspondendo ao frame 393x852. A área rolável
+   começa em y=120, portanto os elementos recebem o deslocamento inverso. */
+.wordy-screen--scroll-v8 .wordy-password {
+  left: 31px !important;
+  top: 32px !important;
+}
+
+.wordy-screen--scroll-v8 .wordy-board {
+  left: 0 !important;
+  top: -120px !important;
+  width: 393px !important;
+  height: 852px !important;
+  overflow: visible !important;
+  transform: none !important;
+}
+
+.wordy-screen--scroll-v8 .wordy-history {
+  position: absolute !important;
+  left: 31px !important;
+  top: 551px !important;
+  width: 330px !important;
+  height: auto !important;
+  min-height: 135px !important;
+  max-height: none !important;
+  padding: 0 0 32px !important;
+  overflow: visible !important;
+}
+
+.wordy-screen--scroll-v8 .wordy-history__list {
+  padding-bottom: calc(12px + var(--safe-bottom, 0px));
+}
+
+/* Fora da PWA, a barra inferior do navegador pode reaparecer durante o gesto.
+   O conteúdo ganha espaço real, sem deslocar ou redimensionar o tabuleiro. */
+html[data-pwa-display="false"] .wordy-screen--scroll-v8 .wordy-content-scroll__canvas {
+  height: calc(860px + var(--browser-bottom-guard, 0px));
+  min-height: calc(860px + var(--browser-bottom-guard, 0px));
+}
+
+/* -------------------------------------------------------------------------- */
+
+
+/* Wordy — a aba "Palavras do dia", e o rodapé que passa a crescer.
+ *
+ * ## Por que o rodapé sai das coordenadas do Figma
+ *
+ * O histórico estava em `top: 551px`, como tudo nesta tela. Coordenada fixa
+ * funciona enquanto só existe uma coisa ali; com a aba nova em cima dele,
+ * qualquer número escolhido estaria errado metade do tempo — a aba fechada tem
+ * 52px e aberta pode ter quatrocentos.
+ *
+ * Então as duas seções entram num bloco em fluxo, com o 551px virando margem.
+ * O bloco é o único filho em fluxo da tela, e é ele quem passa a dar altura ao
+ * canvas: `height` fixo vira `min-height`, e o que cresce empurra a rolagem em
+ * vez de vazar por fora dela. O tabuleiro, a senha e o cabeçalho não se movem —
+ * continuam absolutos, nas coordenadas de sempre.
+ */
+
+.wordy-screen .wordy-content-scroll__canvas {
+  /* Sem isto o canvas continua com 930px cravados e a aba aberta vaza para
+     fora da área rolável — o fim da lista fica inalcançável. */
+  height: auto !important;
+  min-height: 930px !important;
+  /* E sem `flow-root` a margem de 551px do bloco de baixo não fica dentro do
+     canvas: ela escapa pelo topo e empurra o canvas inteiro para baixo, levando
+     junto o tabuleiro e a caixa da senha, que são absolutos dentro dele. */
+  display: flow-root;
+}
+
+.wordy-screen .wordy-bottom {
+  position: relative;
+  z-index: 2;
+  width: 330px;
+  margin: 551px 0 0 31px;
+}
+
+.wordy-screen .wordy-bottom .wordy-history {
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  width: 100% !important;
+  margin-top: 18px !important;
+}
+
+/* --------------------------------------------------------------- a aba --- */
+
+.wordy-screen .wordy-words {
+  width: 100%;
+}
+
+.wordy-screen .wordy-words__toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 16px;
+  border: 1px solid var(--wordy-slot-border);
+  border-radius: 16px;
+  background: var(--wordy-slot-bg);
+  color: var(--wordy-slot-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.wordy-screen .wordy-words__toggle-title {
+  flex: 1 1 auto;
+  font: 600 16px/24px Inter, system-ui, sans-serif;
+}
+
+/* A contagem é o que a aba entrega antes mesmo de abrir: "9/24" já responde
+   "falta muito?". Por isso ela fica no botão, e não lá dentro. */
+.wordy-screen .wordy-words__score {
+  flex: 0 0 auto;
+  font: 600 14px/20px Inter, system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+}
+
+.wordy-screen .wordy-words__chevron {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 160ms ease;
+}
+
+.wordy-screen .wordy-words__toggle.is-open .wordy-words__chevron {
+  transform: translateY(2px) rotate(225deg);
+}
+
+.wordy-screen .wordy-words__panel {
+  padding: 14px 0 0;
+}
+
+/* Texto secundário derivado do título: --wordy-subtitle sai de
+   Labels/Secondary, que nos temas escuros dá menos de 3:1 sobre o fundo desta
+   tela. Misturar título com fundo acompanha o tema e sai opaco; o var() acima
+   fica de reserva para quem não tem color-mix. */
+.wordy-screen .wordy-words__summary {
+  margin: 0 0 12px;
+  color: var(--wordy-subtitle);
+  color: color-mix(in srgb, var(--wordy-title) 76%, var(--wordy-bg));
+  font: 400 14px/20px Inter, system-ui, sans-serif;
+}
+
+.wordy-screen .wordy-words__group + .wordy-words__group {
+  margin-top: 14px;
+}
+
+.wordy-screen .wordy-words__group-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 8px;
+  color: var(--wordy-subtitle);
+  color: color-mix(in srgb, var(--wordy-title) 76%, var(--wordy-bg));
+  font: 600 12px/18px Inter, system-ui, sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.wordy-screen .wordy-words__group-title span {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.wordy-screen .wordy-words__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* O item ocupa o mesmo espaço achado ou não: é o buraco no lugar certo que diz
+   o que ainda falta procurar. Daí a altura fixa e o mesmo raio dos chips do
+   histórico. */
+.wordy-screen .wordy-words__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  padding: 4px 12px;
+  border: 1px dashed var(--wordy-slot-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--wordy-slot-text);
+  font: 500 14px/22px Inter, system-ui, sans-serif;
+}
+
+.wordy-screen .wordy-words__item.is-achada {
+  border-style: solid;
+  border-color: transparent;
+  background: var(--wordy-slot-bg);
+  box-shadow: 0 2px 0 var(--wordy-slot-border);
+}
+
+/* Revelada não é achada: continua tracejada e mais apagada, para a lista não
+   virar um placar de mentira no fim do dia. */
+.wordy-screen .wordy-words__item.is-revelada {
+  opacity: 0.62;
+  font-style: italic;
+}
+
+/* A senha do dia com a mesma medalha do histórico, e pelo mesmo motivo: fundo e
+   texto vêm juntos, então lê igual nos três temas. */
+.wordy-screen .wordy-words__item.is-achada.is-principal {
+  border: 1px solid #47c86b;
+  background: #e6f8eb;
+  color: #177b36;
+  box-shadow: 0 2px 0 #a7dbb6;
+}
+
+/* Uma casa por letra: quantas letras a palavra tem é a dica que sobra quando o
+   texto não aparece. */
+.wordy-screen .wordy-words__blank {
+  display: block;
+  width: 8px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+.wordy-screen .wordy-words__reveal {
+  min-height: 32px;
+  margin-top: 14px;
+  padding: 0 14px;
+  border: 1px solid var(--wordy-slot-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--wordy-subtitle);
+  color: color-mix(in srgb, var(--wordy-title) 76%, var(--wordy-bg));
+  font: 600 12px/1 Inter, system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.wordy-screen .wordy-words__toggle:focus-visible,
+.wordy-screen .wordy-words__reveal:focus-visible {
+  outline: 2px solid var(--ignite-accents-orange, #ff6e00);
+  outline-offset: 2px;
+}
