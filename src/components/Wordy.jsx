@@ -10,25 +10,58 @@ function WordList({puzzle,found}) {
   const [expanded,setExpanded]=useState(false);
   const groups=useMemo(()=>remainingWords(puzzle,found),[puzzle,found]);
   const total=puzzle.validWords.length;
-  const remaining=total-found.length;
-  return <section className="words-panel">
-    <button className="words-toggle" type="button" aria-expanded={expanded} onClick={()=>setExpanded(v=>!v)}>
-      <span>Palavras do dia</span><span className="words-count">{found.length}/{total}</span><span aria-hidden="true" className={'chevron '+(expanded?'up':'')}/>
-    </button>
-    {expanded&&<div className="words-expanded">
-      <p>{remaining===0?'Você encontrou todas as palavras de hoje!':`Faltam ${remaining} ${remaining===1?'palavra':'palavras'}.`}</p>
-      {groups.map(g=><div className="word-group" key={g.size}>
-        <div className="word-group-title"><span>{g.size} letras</span><span>{g.count}</span></div>
-        <div className="remaining-items">{Array.from({length:g.count},(_,i)=><div className="remaining-item" key={i} aria-label={`Palavra de ${g.size} letras não encontrada`}>
-          {Array.from({length:g.size},(_,j)=><i key={j}/>)}
-        </div>)}</div>
-      </div>)}
-    </div>}
-  </section>;
+  const remaining=Math.max(0,total-found.length);
+  return (
+    <section className="wordy-words" aria-label="Palavras do dia">
+      <button
+        className={'wordy-words__toggle'+(expanded?' is-open':'')}
+        type="button"
+        aria-expanded={expanded}
+        aria-controls="wordy-words-panel"
+        onClick={()=>setExpanded(value=>!value)}
+      >
+        <span className="wordy-words__toggle-title">Palavras do dia</span>
+        <span className="wordy-words__score">{found.length}/{total}</span>
+        <span className="wordy-words__chevron" aria-hidden="true"/>
+      </button>
+      {expanded && <div className="wordy-words__panel" id="wordy-words-panel">
+        <p className="wordy-words__summary">{remaining===0?'Você achou todas as palavras de hoje.':`Faltam ${remaining} palavra${remaining===1?'':'s'}.`}</p>
+        {groups.map(group=><div className="wordy-words__group" key={group.size}>
+          <h3 className="wordy-words__group-title">{group.size} letras<span>{group.count}</span></h3>
+          <div className="wordy-words__list">
+            {Array.from({length:group.count},(_,index)=><span
+              className="wordy-words__item"
+              key={index}
+              aria-label={`Palavra de ${group.size} letras ainda não descoberta`}
+            >
+              {Array.from({length:group.size},(_,letter)=><i className="wordy-words__blank" key={letter} aria-hidden="true"/>)}
+            </span>)}
+          </div>
+        </div>)}
+      </div>}
+    </section>
+  );
 }
 
 export default function Wordy({ user }) {
   const [course,setCourse]=useState('english');
+  const [viewport,setViewport]=useState(()=>{
+    const width=typeof window==='undefined'?393:window.innerWidth;
+    const height=typeof window==='undefined'?852:window.innerHeight;
+    const scale=Math.min(1,width/393);
+    return {scale,height:Math.max(500,Math.ceil(height/scale))};
+  });
+  useEffect(()=>{
+    const update=()=>{
+      const scale=Math.min(1,document.documentElement.clientWidth/393);
+      const height=window.visualViewport?.height||window.innerHeight;
+      setViewport({scale,height:Math.max(500,Math.ceil(height/scale))});
+    };
+    update();
+    window.addEventListener('resize',update);
+    window.visualViewport?.addEventListener('resize',update);
+    return ()=>{window.removeEventListener('resize',update);window.visualViewport?.removeEventListener('resize',update);};
+  },[]);
   const [dayKey,setDayKey]=useState(()=>localDateKey());
   const puzzle=useMemo(()=>getPuzzle(course),[course,dayKey]);
   const boardLetters=useMemo(()=>shuffleLetters(puzzle.letters,puzzle.mainWord+':'+puzzle.dateKey),[puzzle]);
@@ -45,7 +78,6 @@ export default function Wordy({ user }) {
   const screen=useRef(null);
   const current=draft.join('');
   const found=useMemo(()=>[...(progress.mainFound?[puzzle.mainWord]:[]),...progress.foundWords],[progress,puzzle]);
-  const foundKey=found.join('|');
 
   useEffect(()=>{progressRef.current=progress;},[progress]);
   useEffect(()=>{
@@ -122,26 +154,61 @@ export default function Wordy({ user }) {
   },[]);
   useEffect(()=>{screen.current?.focus({preventScroll:true});},[course]);
 
-  return <main className="wordy-layout" ref={screen} tabIndex={-1} aria-label="Minigame Wordy">
-    <header className="game-header">
-      <div className="game-header-left"><div className="brand-symbol small">W</div><div><h1>Wordy</h1><p>Descubra a senha do dia</p></div></div>
-      <button className="logout" type="button" onClick={()=>signOut(auth)}>Sair <span>↗</span></button>
-    </header>
-    <div className="game-content">
-      <div className="greeting"><div><span className="eyebrow">DESAFIO DIÁRIO</span><h2>Olá, {(user.displayName||user.email?.split('@')[0]||'jogador').split(' ')[0]}!</h2><p>Use as cinco letras para encontrar palavras.</p></div><span className="date-chip">{new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}</span></div>
-      <div className="course-picker"><label htmlFor="language">Idioma</label><select id="language" value={course} onChange={e=>setCourse(e.target.value)}>{Object.entries(COURSES).map(([key,name])=><option value={key} key={key}>{name}</option>)}</select></div>
-      <section className="password" aria-label="Insira a senha"><div className="password-title"><h2>Insira a senha</h2><button className="ghost-button" type="button" onClick={reset}>Limpar</button></div>
-        <div className={'slots '+(result?'state-'+result:'')} aria-live="polite">{Array.from({length:5},(_,i)=><span className={'slot '+(draft[i]?'filled':'')} key={i}>{draft[i]||''}</span>)}</div>
-        <div className={'result-hint '+(result?'show '+result:'')} role="status">{hint||'Escolha uma letra para começar'}</div>
-      </section>
-      <section className="board-wrapper" aria-label="Letras disponíveis"><div className="letter-board">{boardLetters.map((letter,index)=><button className="letter" data-position={positions[index]} type="button" key={letter+'-'+index} onClick={()=>append(letter)} disabled={loading}>{letter}</button>)}<button className="delete-key" onClick={erase} type="button" aria-label="Apagar última letra">⌫</button></div></section>
-      <div className="game-bottom">
-        {loading?<div className="loading-panel" role="status">Carregando seu progresso...</div>:<WordList puzzle={puzzle} found={found}/>}
-        <section className="history"><div className="history-heading"><h2>Histórico</h2><span>{found.length} {found.length===1?'palavra':'palavras'}</span></div>
-        {!found.length?<p className="history-empty">Ainda não descobriu nenhuma palavra.</p>:<div className="history-items">{found.map(word=><span key={word} className={word===puzzle.mainWord?'main-word':''}>{word===puzzle.mainWord?'★ ':''}{word}</span>)}</div>}</section>
-        {saveError&&<p className="sync-error" role="alert">{saveError}</p>}
-        <p className="sync-note">☁ Progresso salvo no Firebase por conta e por dia.</p>
-      </div>
+  return (
+    <div className="wordy-mini-viewport" style={{'--wordy-scale':viewport.scale,'--wordy-height':viewport.height+'px'}}>
+      <main className="wordy-screen wordy-screen--figma wordy-screen--scroll-v8"
+        data-name="wordyTab" ref={screen} tabIndex={-1} aria-label="Minigame Wordy">
+        <header className="wordy-head simple-page-header" aria-label="Cabeçalho do Wordy">
+          <button className="simple-page-header__back" type="button" aria-label="Sair do Wordy" title="Sair da conta" onClick={()=>signOut(auth)}>
+            <span aria-hidden="true"/>
+          </button>
+          <div className="simple-page-header__copy">
+            <h1>Wordy</h1>
+            <p>Descubra a senha do dia</p>
+          </div>
+          <div className="wordy-language" aria-label="Selecionar idioma">
+            <span className="wordy-language__icon" aria-hidden="true">🌐</span>
+            <select aria-label="Idioma" title="Selecionar idioma" value={course} onChange={event=>setCourse(event.target.value)}>
+              {Object.entries(COURSES).map(([key,name])=><option key={key} value={key}>{key==='english'?'EN':key==='spanish'?'ES':'FR'} — {name}</option>)}
+            </select>
+          </div>
+        </header>
+
+        <div className="wordy-content-scroll">
+          <div className="wordy-content-scroll__canvas">
+            <section className="wordy-password" aria-label="Insira a senha">
+              <h2>Insira a senha</h2>
+              <div key={result+current} className={'wordy-password__slots'+(result?' is-'+result:'')} aria-live="polite">
+                {Array.from({length:5},(_,index)=><span
+                  className={'wordy-password__slot'+(draft[index]?' is-filled':'')+(result&&draft[index]?' is-result-slot':'')}
+                  style={{'--wordy-slot-index':index}} key={index}
+                >{draft[index]||''}</span>)}
+              </div>
+              <span className="wordy-visually-hidden" role="status" aria-live="polite">{hint}</span>
+            </section>
+
+            <section className="wordy-board" aria-label="Letras disponíveis para a senha">
+              {boardLetters.map((letter,index)=><button
+                className="wordy-letter" data-letter-position={positions[index]} type="button"
+                key={letter+'-'+index} onClick={()=>append(letter)} disabled={loading}
+                aria-label={`Inserir letra ${letter}`}
+              >{letter}</button>)}
+              <button className="wordy-delete-key" type="button" aria-label="Excluir a última letra" onClick={erase}>X</button>
+            </section>
+
+            <div className="wordy-bottom">
+              {loading?<p className="wordy-loading" role="status">Carregando progresso...</p>:<WordList puzzle={puzzle} found={found}/>}
+              <section className="wordy-history" aria-label="Histórico de palavras descobertas">
+                <div className="wordy-history__title-row"><h2>Histórico</h2></div>
+                {!found.length?<p>Ainda não descobriu nenhuma palavra</p>:<div className="wordy-history__list">
+                  {found.map(word=><span className={'wordy-history__item'+(word===puzzle.mainWord?' is-main-word':'')} key={word}>{word}</span>)}
+                </div>}
+              </section>
+              {saveError&&<p className="wordy-sync-error" role="alert">{saveError}</p>}
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
-  </main>;
+  );
 }
