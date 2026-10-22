@@ -115,3 +115,75 @@
  .wordy-mini-viewport .wordy-password__slots,
  .wordy-mini-viewport .wordy-password__slot {animation:none !important;transition:none !important}
 }
+
+
+/* Correção definitiva: não herdar o fundo branco / pseudo-elementos do botão. */
+.wordy-mini-viewport .wordy-head .simple-page-header__back {
+  -webkit-appearance:none !important;
+  appearance:none !important;
+  background:transparent !important;
+  background-image:none !important;
+  border:0 !important;
+  box-shadow:none !important;
+  filter:none !important;
+  outline-offset:3px;
+  display:flex !important;
+  align-items:center;
+  justify-content:center;
+  overflow:visible;
+}
+.wordy-mini-viewport .wordy-head .simple-page-header__back::before,
+.wordy-mini-viewport .wordy-head .simple-page-header__back::after {
+  content:none !important;
+  display:none !important;
+  background:none !important;
+}
+.wordy-mini-viewport .wordy-head .simple-page-header__back svg,
+.wordy-mini-viewport .wordy-head .simple-page-header__back svg path {
+  display:block;
+  fill:none !important;
+  stroke:currentColor !important;
+  stroke-width:2.6 !important;
+  stroke-linecap:round !important;
+  stroke-linejoin:round !important;
+  background:transparent !important;
+}
+.wordy-mini-viewport .wordy-head .simple-page-header__back svg {
+  width:22px;height:22px;overflow:visible;
+}
+
+/* Os controles de importação ficam no final da rolagem, não movem o teclado. */
+.wordy-mini-viewport .wordy-catalog-tools {
+  width:100%;
+  margin-top:22px;
+  padding-bottom:30px;
+  font:500 12px/1.5 Inter,system-ui,sans-serif;
+}
+.wordy-mini-viewport .wordy-catalog-tools__toggle {
+  display:flex;align-items:center;gap:9px;
+  width:100%;padding:11px 12px;
+  border:1px solid var(--wordy-slot-border);
+  border-radius:12px;
+  background:transparent;
+  color:var(--wordy-subtitle);
+  text-align:left;
+  font:600 12px/1.4 Inter,system-ui,sans-serif;
+}
+.wordy-mini-viewport .wordy-catalog-tools__toggle span:first-child {flex:1}
+.wordy-mini-viewport .wordy-catalog-tools__content {margin-top:12px;color:var(--wordy-subtitle)}
+.wordy-mini-viewport .wordy-catalog-tools__content p {font-size:12px;line-height:1.6}
+.wordy-mini-viewport .wordy-catalog-tools__actions {display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.wordy-mini-viewport .wordy-catalog-tools__actions button,
+.wordy-mini-viewport .wordy-catalog-tools__upload {
+  display:grid;place-items:center;min-height:36px;
+  border:1px solid #e38448;border-radius:9px;
+  background:#3b2a24;color:#ffbb82;padding:8px 11px;
+  cursor:pointer;font:600 12px Inter,system-ui,sans-serif;
+}
+.wordy-mini-viewport .wordy-catalog-tools__upload {position:relative;overflow:hidden}
+.wordy-mini-viewport .wordy-catalog-tools__upload input {position:absolute;opacity:0;inset:0;cursor:pointer;width:100%}
+.wordy-mini-viewport .wordy-catalog-tools__status {
+  font:500 12px/1.5 Inter,system-ui,sans-serif;
+  color:#8ece9e;margin:10px 0;
+}
+.wordy-mini-viewport .wordy-catalog-tools code {color:#ffbb82;font-size:11px}
