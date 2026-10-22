@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { signOut } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import { recordWord, watchProgress, emptyProgress } from '../lib/progress';
+import { ensureStarterCatalog, importCatalog, starterCatalog, validateCatalog, watchCatalog } from '../lib/catalog.js';
 import { COURSES, getPuzzle, localDateKey, normalizeWord, shuffleLetters, canGrow, remainingWords } from '../lib/wordy';
 
 const positions=['top','right','center','bottom','left'];
@@ -63,7 +64,64 @@ export default function Wordy({ user }) {
     return ()=>{window.removeEventListener('resize',update);window.visualViewport?.removeEventListener('resize',update);};
   },[]);
   const [dayKey,setDayKey]=useState(()=>localDateKey());
-  const puzzle=useMemo(()=>getPuzzle(course),[course,dayKey]);
+  const [catalog,setCatalog]=useState({});
+  const [catalogLoaded,setCatalogLoaded]=useState(false);
+  const [catalogStatus,setCatalogStatus]=useState('');
+  const [catalogError,setCatalogError]=useState('');
+  const [catalogBusy,setCatalogBusy]=useState(false);
+  const [catalogOpen,setCatalogOpen]=useState(false);
+  const puzzle=useMemo(()=>getPuzzle(course,new Date(),catalog),[course,dayKey,catalog]);
+  useEffect(()=>{
+    let active=true;
+    const stop=watchCatalog(user.uid,next=>{
+      if(!active)return;
+      setCatalog(next);setCatalogLoaded(true);setCatalogError('');
+    },error=>{
+      if(active){setCatalogLoaded(true);setCatalogError('Não foi possível ler o catálogo. Publique as novas regras do Firestore.');}
+    });
+    ensureStarterCatalog(user.uid).then(()=>{
+      if(active)setCatalogStatus('Catálogo inicial sincronizado com o Firebase.');
+    }).catch(()=>{
+      if(active)setCatalogError('O catálogo não pôde ser gravado. Confira as regras do Firestore.');
+    });
+    return ()=>{active=false;stop();};
+  },[user.uid]);
+
+  async function reimportStarter() {
+    if(!window.confirm('Restaurar as 15 senhas de cada idioma no seu Firebase? Suas listas personalizadas serão substituídas.'))return;
+    setCatalogBusy(true);setCatalogError('');setCatalogStatus('');
+    try {
+      const count=await importCatalog(user.uid,starterCatalog());
+      setCatalogStatus(`${count} desafios importados para sua conta no Firestore.`);
+    }catch(error){setCatalogError(error?.message || 'Falha na importação.');}
+    finally{setCatalogBusy(false);}
+  }
+  async function uploadCatalog(event) {
+    const file=event.currentTarget.files?.[0];
+    event.currentTarget.value='';
+    if(!file)return;
+    setCatalogBusy(true);setCatalogError('');setCatalogStatus('');
+    try {
+      if(file.size>1024*1024)throw new Error('O JSON deve ter no máximo 1 MB.');
+      const raw=JSON.parse(await file.text());
+      const validated=validateCatalog(raw);
+      if(!window.confirm('Substituir as listas de 15 palavras dos três idiomas na sua conta?'))return;
+      const count=await importCatalog(user.uid,validated);
+      setCatalogStatus(`${count} desafios importados do JSON para o Firestore.`);
+    }catch(error){setCatalogError(error?.message || 'Arquivo JSON inválido.');}
+    finally{setCatalogBusy(false);}
+  }
+  function downloadCatalog() {
+    const model={courses:{
+      english:catalog.english?.length?catalog.english:starterCatalog().english,
+      spanish:catalog.spanish?.length?catalog.spanish:starterCatalog().spanish,
+      french:catalog.french?.length?catalog.french:starterCatalog().french,
+    }};
+    const url=URL.createObjectURL(new Blob([JSON.stringify(model,null,2)],{type:'application/json'}));
+    const a=document.createElement('a');
+    a.href=url;a.download='wordy-catalogo-15-por-idioma.json';a.click();
+    window.setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
   const boardLetters=useMemo(()=>shuffleLetters(puzzle.letters,puzzle.mainWord+':'+puzzle.dateKey),[puzzle]);
   const [progress,setProgress]=useState(emptyProgress);
   const progressRef=useRef(progress);
@@ -160,8 +218,8 @@ export default function Wordy({ user }) {
         data-name="wordyTab" ref={screen} tabIndex={-1} aria-label="Minigame Wordy">
         <header className="wordy-head simple-page-header" aria-label="Cabeçalho do Wordy">
           <button className="simple-page-header__back" type="button" aria-label="Sair do Wordy" title="Sair da conta" onClick={()=>signOut(auth)}>
-            <svg className="simple-page-header__back-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M15 5 8 12 15 19" />
+            <svg className="simple-page-header__back-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+              <path d="M15 5 8 12 15 19" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
           <div className="simple-page-header__copy">
@@ -212,6 +270,27 @@ export default function Wordy({ user }) {
                 </div>}
               </section>
               {saveError&&<p className="wordy-sync-error" role="alert">{saveError}</p>}
+              <section className="wordy-catalog-tools" aria-label="Catálogo de palavras no Firebase">
+                <button className="wordy-catalog-tools__toggle" type="button" aria-expanded={catalogOpen} onClick={()=>setCatalogOpen(value=>!value)}>
+                  <span>☁ Catálogo Firebase</span>
+                  <span>{catalogLoaded?['english','spanish','french'].map(id=>catalog[id]?.length||0).join(' / '):'Sincronizando…'}</span>
+                  <span aria-hidden="true">{catalogOpen?'−':'+'}</span>
+                </button>
+                {catalogOpen&&<div className="wordy-catalog-tools__content">
+                  <p>15 desafios por idioma. Importação inicial automática para esta conta.</p>
+                  <div className="wordy-catalog-tools__actions">
+                    <button type="button" disabled={catalogBusy} onClick={reimportStarter}>{catalogBusy?'Importando…':'Reimportar 45 desafios'}</button>
+                    <button type="button" disabled={catalogBusy} onClick={downloadCatalog}>Baixar JSON</button>
+                    <label className="wordy-catalog-tools__upload" aria-label="Importar um arquivo JSON com as três listas">
+                      Importar JSON
+                      <input type="file" accept=".json,application/json" disabled={catalogBusy} onChange={uploadCatalog}/>
+                    </label>
+                  </div>
+                  <p>O JSON deve ter <code>english</code>, <code>spanish</code> e <code>french</code>, com 15 objetos contendo <code>mainWord</code> e <code>validWords</code> em cada idioma.</p>
+                </div>}
+                {catalogStatus&&<p className="wordy-catalog-tools__status" role="status">{catalogStatus}</p>}
+                {catalogError&&<p className="wordy-sync-error" role="alert">{catalogError}</p>}
+              </section>
             </div>
           </div>
         </div>
