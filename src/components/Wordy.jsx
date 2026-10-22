@@ -160,14 +160,21 @@ export default function Wordy({ user }) {
         data-name="wordyTab" ref={screen} tabIndex={-1} aria-label="Minigame Wordy">
         <header className="wordy-head simple-page-header" aria-label="Cabeçalho do Wordy">
           <button className="simple-page-header__back" type="button" aria-label="Sair do Wordy" title="Sair da conta" onClick={()=>signOut(auth)}>
-            <span aria-hidden="true"/>
+            <svg className="simple-page-header__back-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M15 5 8 12 15 19" />
+            </svg>
           </button>
           <div className="simple-page-header__copy">
             <h1>Wordy</h1>
             <p>Descubra a senha do dia</p>
           </div>
           <div className="wordy-language" aria-label="Selecionar idioma">
-            <span className="wordy-language__icon" aria-hidden="true">🌐</span>
+            <span className="wordy-language__icon" aria-hidden="true">
+              <svg className="wordy-language__globe" viewBox="0 0 24 24" focusable="false">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M3 12h18M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9M12 3c-2.5 2.5-4 5.5-4 9s1.5 6.5 4 9" />
+              </svg>
+            </span>
             <select aria-label="Idioma" title="Selecionar idioma" value={course} onChange={event=>setCourse(event.target.value)}>
               {Object.entries(COURSES).map(([key,name])=><option key={key} value={key}>{key==='english'?'EN':key==='spanish'?'ES':'FR'} — {name}</option>)}
             </select>
